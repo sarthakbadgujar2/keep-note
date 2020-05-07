@@ -18,6 +18,7 @@ window.onload = function() {
 
     req.onsuccess = function() {
         database = req.result;
+        onLoad();
     }
 
     req.onerror = function(event) {
@@ -32,32 +33,101 @@ window.onload = function() {
     }
 }
 
+
+
 let defaultError = function() {
-  console.log("Soeting went wrong");
+    console.log("Something went wrong");
 }
 
-function addTask(store, task, success, error = defaultError {
-  let transaction = database.transaction([store],"readwrite");
-  let objectStore = transaction.objectStore(store);
-  let request = objectStore.add(task);
-  request.onerror = error;
-  request.onsuccess = success;
+function addTask(store, task, success, error = defaultError) {
+    let transaction = database.transaction([store], "readwrite");
+    let objectStore = transaction.objectStore(store);
+    let request = objectStore.add(task);
+    request.onerror = error;
+    request.onsuccess = success;
 }
 
-function readTasks(store,success, error = defaultError {
-  let transaction = database.transaction([store],"readonly");
-  let objectStore = transaction.objectStore(store);
-  let request = objectStore.openCursor();
-  request.onerror = error;
-  let tasks = [];
-  request.onsuccess = function() {
-    let cursor = event.target.result;
-    if (cursor){
-      let task = cursor.value;
-      task.push(task);
-      cursor.continue();
-    }else {
-      success(tasks);
-    }
-  };
+function readTasks(store, success, error = defaultError) {
+    let transaction = database.transaction([store], "readonly");
+    let objectStore = transaction.objectStore(store);
+    let request = objectStore.openCursor();
+    request.onerror = error;
+    let tasks = [];
+    request.onsuccess = function(event) {
+        let cursor = event.target.result;
+        if(cursor) {
+            let task = cursor.value;
+            tasks.push(task);
+            cursor.continue();
+        } else {
+            success(tasks);
+        }
+    };
 }
+
+function readOneTask(store, id, success, error = defaultError) {
+    let transaction = database.transaction([store], "readonly");
+    let objectStore = transaction.objectStore(store);
+    let request = objectStore.get(id);
+    request.onerror = error;
+    request.onsuccess = function() {
+        success(request.result);
+    };
+}
+
+function deleteTask(store, id, success, error = defaultError) {
+    let transaction = database.transaction([store], "readwrite");
+    let objectStore = transaction.objectStore(store);
+    let request = objectStore.delete(id);
+    request.onerror = error;
+    request.onsuccess = success;
+}
+
+function deleteAllTasks(store, success, error = defaultError) {
+    success = success || function() { console.log("Deleted All Tasks"); }
+    let transaction = database.transaction([store], "readwrite");
+    let objectStore = transaction.objectStore(store);
+    let request = objectStore.clear();
+    request.onerror = error;
+    request.onsuccess = success;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
